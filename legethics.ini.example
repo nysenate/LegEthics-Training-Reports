@@ -1,0 +1,54 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; General configuration
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[general]
+report.dir = /tmp/reports
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Database server configuration
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[database]
+; These parameters configure the mysql connection string:
+;   user:pass@host:port/name
+user =
+pass =
+host = localhost
+port = 3306
+name = moodle
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; SMTP server configuration
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[smtp]
+host = smtp.example.com
+auth = false
+from = no-reply@training.example.com
+fromName = LegEthics Report Sender
+replyTo = zalewski@example.com
+replyToName = Ken Zalewski
+bcc[] = zalewski@example.com
+bcc[] = jbell@example.com
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Organization-specific configuration
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[organizations]
+active = Senate,Assembly
+;active = Senate,Assembly,LBDC
+
+; duration is last N days
+Senate.duration = 7
+Senate.email[] = zalewski@example.com
+Senate.email[] = jbell@example.com
+
+Assembly.duration = 7
+Assembly.email[] = zalewski@example.com
+
+LBDC.duration = 7
+LBDC.email[] =
+
