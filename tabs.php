@@ -17,19 +17,19 @@ function generate_tab_content($id, $text, $startdt, $enddt,
               <ul class="inputs-list">
                 <li>
                   <label>
-                  <input type="checkbox" checked="checked" value="Assembly" name="Assembly">
+                  <input type="checkbox" checked name="Assembly" value="1">
                   <span>Assembly</span>
                   </label>
                 </li>
                 <li>
                   <label>
-                  <input type="checkbox" checked="checked" value="Senate" name="Senate">
+                  <input type="checkbox" checked name="Senate" value="1">
                   <span>Senate</span>
                   </label>
                 </li>
                 <li>
                   <label>
-                  <input type="checkbox" checked="checked" value="LBDC" name="LBDC">
+                  <input type="checkbox" checked name="LBDC" value="1">
                   <span>LBDC</span>
                   </label>
                 </li>
