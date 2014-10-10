@@ -48,8 +48,10 @@ foreach ($active_orgs as $org) {
   $out_fileinfo = generate_csv_file($report_dir, $org, $result);
 
   if ($out_fileinfo) {
-    $filename = $out_fileinfo['file'];
-    $rc = send_email($org, $report_t, $cfg['smtp'], $to_emails, $filename);
+    $recnum = $out_fileinfo['count'];
+    $filepath = $out_fileinfo['filepath'];
+    echo "$recnum records saved to $filepath\n";
+    $rc = send_email($org, $report_t, $cfg['smtp'], $to_emails, $filepath);
   }
   else {
     echo "$org: No output file to e-mail\n";

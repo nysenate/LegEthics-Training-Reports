@@ -33,6 +33,8 @@ else {
 }
 
 $cfg = get_config('legethics.ini');
+$report_dir = $cfg['general']['report.dir'];
+
 $dbcon = get_db_connection($cfg['database']);
 if ($dbcon === false) {
   echo "ERROR: Unable to connect to database\n";
@@ -41,15 +43,18 @@ if ($dbcon === false) {
 
 foreach ($orgs as $name => $val) {
   $orgs[$name] = fetch_exam_results($dbcon, $name, $start_unix, $end_unix);
-  $csvinfo = generate_csv_file('reports', $name, $orgs[$name]);
-  $files_to_zip[$name] = $csvinfo['file'];
+  $csvinfo = generate_csv_file($report_dir, $name, $orgs[$name]);
+  if ($csvinfo) {
+    $files_to_zip[$name] = $csvinfo['filename'];
+  }
 }
 
 if (empty($files_to_zip)) {
-  $zip_filename = false;
+  $zip_filename = null;
 }
 else {
-  $zip_filename = create_zipfile('reports', 'All_reports', $files_to_zip);
+  $zipinfo = create_zipfile($report_dir, 'All_reports', $files_to_zip);
+  $zip_filename = $zipinfo['filename'];
 }
 
 
@@ -64,35 +69,40 @@ function clean($string)
 /* creates a compressed zip file */
 function create_zipfile($dir, $base, $files)
 {
-  $zipfile = $dir.'/'.$base.'_'.date('Ymd-His').'.zip';
+  $filename = $base.'_'.date('Ymd-His').'.zip';
+  $filepath = $dir.DIRECTORY_SEPARATOR.$filename;
   // if the zip file already exists, return
-  if (file_exists($zipfile)) {
-    return false;
+  if (file_exists($filepath)) {
+    return null;
   }
 
   $valid_files = array();
   if (is_array($files)) {
     foreach ($files as $file) {
-      if (file_exists($file)) {
+      if (file_exists($dir.DIRECTORY_SEPARATOR.$file)) {
         $valid_files[] = $file;
       }
     }
   }
 
-  if (count($valid_files) > 0) {
+  $file_count = count($valid_files);
+
+  if ($file_count > 0) {
     $zip = new ZipArchive();
     $mode = $overwrite ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE;
-    if ($zip->open($zipfile, $mode) !== true) {
-      return false;
+    if ($zip->open($filepath, $mode) !== true) {
+      return null;
     }
     foreach ($valid_files as $file) {
-      $zip->addFile($file, $file);
+      $zip->addFile($dir.DIRECTORY_SEPARATOR.$file, $file);
     }
     $zip->close();
-    return $zipfile;
+    return array('filename' => $filename,
+                 'filepath' => $filepath,
+                 'count' => $file_count);
   }
   else {
-    return false;
+    return null;
   }
 } // create_zipfile()
 
@@ -197,10 +207,10 @@ if ($error == true) {
       <div title="" class="">
       <?php
         foreach ($files_to_zip as $org_name => $filename) {
-          echo "<a href='$filename' class='btn' target='_blank'>Download the $org_name report ( .csv )</a>\n";
+          echo "<a href='download.php?file=$filename' class='btn' target='_blank'>Download the $org_name report (.csv)</a>\n";
         }
         if ($zip_filename) {
-          echo "<a href='$zip_filename' class='btn' target='_blank'>All reports (.zip )</a>\n";
+          echo "<a href='download.php?file=$zip_filename' class='btn' target='_blank'>Download all reports (.zip)</a>\n";
         }
       ?>
       </div>

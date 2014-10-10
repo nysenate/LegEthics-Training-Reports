@@ -74,8 +74,9 @@ function generate_csv_file($dir, $org, $res)
                    'Confirmed', 'Completed');
 
   // office specific csv report for attachment
-  $file = "$dir/$org".'_'.date('Ymd-His').'.csv';
-  $fp = fopen($file, 'w');
+  $filename = $org.'_'.date('Ymd-His').'.csv';
+  $filepath = $dir.DIRECTORY_SEPARATOR.$filename;
+  $fp = fopen($filepath, 'w');
   if ($fp) {
     fputcsv($fp, $headers);
     $recordCount = 0;
@@ -84,7 +85,9 @@ function generate_csv_file($dir, $org, $res)
       $recordCount++;
     }
     fclose($fp);
-    return array('file'=>$file, 'count'=>$recordCount);
+    return array('filename' => $filename,
+                 'filepath' => $filepath,
+                 'count' => $recordCount);
   }
   else {
     return null;
