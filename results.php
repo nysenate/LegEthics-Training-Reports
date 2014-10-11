@@ -89,8 +89,7 @@ function create_zipfile($dir, $base, $files)
 
   if ($file_count > 0) {
     $zip = new ZipArchive();
-    $mode = $overwrite ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE;
-    if ($zip->open($filepath, $mode) !== true) {
+    if ($zip->open($filepath, ZIPARCHIVE::CREATE) !== true) {
       return null;
     }
     foreach ($valid_files as $file) {
