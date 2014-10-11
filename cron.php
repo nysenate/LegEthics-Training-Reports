@@ -1,15 +1,14 @@
 <?php
 //
-// Cron job to build usage report for email delivery
-// 0 16 * * 5 php /data/moodle/www/report/nys/cron.php
+// Cron job to build weekly usage report for email delivery
+//   0 16 * * 5 php /data/moodle/www/report/nys/cron.php
+// For quarterly reports:
+//   0 0 30 6,9 * php /data/moodle/www/report/nys/cron.php --quarterly
+//   0 0 31 3,12 * php /data/moodle/www/report/nys/cron.php --quarterly
 //
 // Subscriptions are managed in: legethics.ini
 //
-// quarterly reports
-// 0 0 30 6,9 * php /data/moodle/www/report/nys/cron.php --quarterly >>/var/log/cron.d/moodle_report.log
-// 0 0 31 3,12 * php /data/moodle/www/report/nys/cron.php --quarterly >>/var/log/cron.d/moodle_report.log
 
-require_once 'PHPMailer/PHPMailerAutoload.php';
 require_once 'utils.php';
 
 echo "Starting Moodle report generation at ".date('Ymd-His')."\n";
@@ -22,19 +21,45 @@ if ($dbcon === false) {
 }
 
 $report_dir = $cfg['general']['report.dir'];
+$phpmailer_dir = $cfg['general']['phpmailer.dir'];
 $org_config = $cfg['organizations'];
 $active_orgs = explode(',', $org_config['active']);
+
+if (is_dir($report_dir) == false || is_dir($phpmailer_dir) == false) {
+  echo "ERROR: Both report.dir and phpmailer.dir must exist\n";
+  exit(1);
+}
+
+require_once "$phpmailer_dir/class.phpmailer.php";
+require_once "$phpmailer_dir/class.smtp.php";
+
+// Define our own mailer called CronMailer, which simply extends the
+// standard PHPMailer by overriding the default constructor.
+// Newer versions of PHPMailer attempt to register a class autoloader.
+// However, the version included with Moodle does not include the autoloader
+// for performance reasons.  We don't need it, so we override it.
+// Otherwise, an error is thrown when PHPMailer is instantiated.
+
+class CronMailer extends PHPMailer
+{
+  public function __construct() { }
+}
 
 # CLI options
 $opts = getopt('q', ['quarterly']);
 $report_t = (isset($opts['quarterly'])) ? "Quarterly" : "Weekly";
-
 
 // run through list of offices
 foreach ($active_orgs as $org) {
   $duration = (isset($opts['quarterly'])) ? 92 : $org_config[$org.'.duration']; ;
   $from = date('U', strtotime('-'.$duration.' days'));
   $to = date('U');
+
+  if (empty($org_config[$org.'.email'])) {
+    echo "WARN: No e-mail addresses specified for $org; skipping\n";
+    continue;
+  }
+
   $to_emails = $org_config[$org.'.email'];
 
   echo "Generating $org $report_t Report covering the past $duration days\n";
@@ -66,8 +91,7 @@ return 0;
 
 function send_email($org, $rptType, $smtp, $emails, $attachment)
 {
-  // send email
-  $mail = new PHPMailer;
+  $mail = new CronMailer;
   $mail->isSMTP();
   $mail->Host = $smtp['host'];
   $mail->SMTPAuth = $smtp['auth'];
@@ -75,12 +99,19 @@ function send_email($org, $rptType, $smtp, $emails, $attachment)
   $mail->setFrom($smtp['from'], $smtp['fromName']);
   $mail->addReplyTo($smtp['replyTo'], $smtp['replyToName']);
 
+  if (empty($emails)) {
+    echo "WARN: $org has no e-mail addresses to send to\n";
+    return false;
+  }
+
   foreach ($emails as $email) {
     $mail->addAddress($email);
   }
 
-  foreach ($smtp['bcc'] as $email) {
-    $mail->addBCC($email);
+  if (!empty($smtp['bcc']) && is_array($smtp['bcc'])) {
+    foreach ($smtp['bcc'] as $email) {
+      $mail->addBCC($email);
+    }
   }
 
   $mail->addAttachment($attachment, "$org $rptType Report.csv");
