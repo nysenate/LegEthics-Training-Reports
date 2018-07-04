@@ -30,8 +30,8 @@ if (is_dir($report_dir) == false || is_dir($phpmailer_dir) == false) {
   exit(1);
 }
 
-require_once "$phpmailer_dir/class.phpmailer.php";
-require_once "$phpmailer_dir/class.smtp.php";
+require_once "$phpmailer_dir/PHPMailer.php";
+require_once "$phpmailer_dir/SMTP.php";
 
 // Define our own mailer called CronMailer, which simply extends the
 // standard PHPMailer by overriding the default constructor.
@@ -40,7 +40,7 @@ require_once "$phpmailer_dir/class.smtp.php";
 // for performance reasons.  We don't need it, so we override it.
 // Otherwise, an error is thrown when PHPMailer is instantiated.
 
-class CronMailer extends PHPMailer
+class CronMailer extends PHPMailer\PHPMailer\PHPMailer
 {
   public function __construct() { }
 }
