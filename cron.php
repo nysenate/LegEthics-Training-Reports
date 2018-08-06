@@ -32,6 +32,7 @@ if (is_dir($report_dir) == false || is_dir($phpmailer_dir) == false) {
 
 require_once "$phpmailer_dir/PHPMailer.php";
 require_once "$phpmailer_dir/SMTP.php";
+require_once "$phpmailer_dir/Exception.php";
 
 // Define our own mailer called CronMailer, which simply extends the
 // standard PHPMailer by overriding the default constructor.
