@@ -14,21 +14,47 @@ require_once 'utils.php';
 echo "Starting Moodle report generation at ".date('Ymd-His')."\n";
 
 $cfg = get_config('legethics.ini');
+if ($cfg === null) {
+  echo "ERROR: Unable to load config file\n";
+  exit(1);
+}
+
+// Confirm all four major sections of the config file are present.
+foreach (['general','database','smtp','organizations'] as $sect) {
+  if (!isset($cfg[$sect])) {
+    echo "ERROR: Config file is missing the [$sect] section\n";
+    exit(1);
+  }
+}
+
 $dbcon = get_db_connection($cfg['database']);
 if ($dbcon === false) {
   echo "ERROR: Unable to connect to database\n";
   exit(1);
 }
 
-$report_dir = $cfg['general']['report.dir'];
-$phpmailer_dir = $cfg['general']['phpmailer.dir'];
-$org_config = $cfg['organizations'];
-$active_orgs = explode(',', $org_config['active']);
-
-if (is_dir($report_dir) == false || is_dir($phpmailer_dir) == false) {
-  echo "ERROR: Both report.dir and phpmailer.dir must exist\n";
+$gen_config = $cfg['general'];
+if (!isset($gen_config['report.dir']) || !isset($gen_config['phpmailer.dir'])) {
+  echo "ERROR: Both report.dir and phpmailer.dir must be set\n";
   exit(1);
 }
+else {
+  $report_dir = $gen_config['report.dir'];
+  $phpmailer_dir = $gen_config['phpmailer.dir'];
+  if (is_dir($report_dir) == false || is_dir($phpmailer_dir) == false) {
+    echo "ERROR: Both report.dir and phpmailer.dir must exist\n";
+    exit(1);
+  }
+}
+
+$org_config = $cfg['organizations'];
+if (isset($org_config['active'])) {
+  $active_orgs = explode(',', $org_config['active']);
+}
+else {
+  $active_orgs = [];
+}
+
 
 require_once "$phpmailer_dir/PHPMailer.php";
 require_once "$phpmailer_dir/SMTP.php";

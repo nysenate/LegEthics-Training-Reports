@@ -7,7 +7,7 @@ function get_config($ini_file = 'legethics.ini')
   if ($cfg === null) {
     $cfg = parse_ini_file($ini_file, true);
     if ($cfg === false) {
-      echo "ERROR: Unable to load config file\n";
+      $cfg = null;
     }
   }
   return $cfg;
