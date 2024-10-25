@@ -36,6 +36,7 @@ function get_db_connection($dbcfg)
 
 function fetch_exam_results($dbcon, $org, $from, $to)
 {
+
   $sth = $dbcon->prepare("
     WITH user_fields AS (
         SELECT data.userid,
@@ -50,21 +51,19 @@ function fetch_exam_results($dbcon, $org, $from, $to)
            uf.organization, u.city, uf.office,
            uf.location, uf.phone,
            (CASE WHEN u.confirmed = 0 THEN 'No' ELSE 'Yes' END) as confirmed,
-           crs.shortname,
+           CONCAT(crs.shortname, ': ', l.name),
            (CASE WHEN g.completed IS NULL THEN 'Incomplete'
             ELSE from_unixtime(g.completed) END) as completed
-      FROM mdl_lesson_grades g
-      JOIN mdl_lesson l ON (g.lessonid = l.id)
-      JOIN mdl_course crs ON (l.course = crs.id)
-      JOIN mdl_user u ON (u.id = g.userid)
- LEFT JOIN user_fields uf ON (uf.userid = g.userid)
-      JOIN mdl_role_assignments ra ON (ra.userid = g.userid)
-      JOIN mdl_context ctxt ON (ra.contextid = ctxt.id)
-     WHERE u.id != 1
-       AND ra.roleid = (SELECT id FROM mdl_role WHERE shortname='student')
-       AND ctxt.contextlevel = 50
-       AND ctxt.instanceid = crs.id
-       AND uf.organization = ?
+      FROM mdl_user_enrolments ue
+      JOIN mdl_user u ON (ue.userid = u.id)
+ LEFT JOIN user_fields uf ON (uf.userid = u.id)
+      JOIN mdl_enrol enrol ON (ue.enrolid = enrol.id)
+      JOIN mdl_course crs ON (crs.id = enrol.courseid)
+      JOIN mdl_lesson l ON (l.course = crs.id)
+ LEFT JOIN mdl_lesson_grades g ON (g.lessonid = l.id AND g.userid = u.id)
+     WHERE u.id !=1
+       AND crs.id = 6
+       AND uf.organization = ? 
        AND ((g.completed > ? AND g.completed < ?) OR g.completed IS NULL)
   ORDER BY u.confirmed DESC, g.completed DESC");
 
@@ -79,7 +78,7 @@ function generate_csv_file($dir, $org, $res)
   // headers
   $headers = array('Userid', 'Firstname', 'Lastname', 'Email', 'Organization',
                    'City', 'Office', 'Location', 'Phone',
-                   'Confirmed', 'Course', 'Completed');
+                   'Confirmed', 'Lesson', 'Completed');
 
   // office specific csv report for attachment
   $filename = $org.'_'.date('Ymd-His').'.csv';
