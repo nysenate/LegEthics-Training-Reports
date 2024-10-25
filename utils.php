@@ -34,6 +34,25 @@ function get_db_connection($dbcfg)
 } // get_db_connection()
 
 
+/**
+ * An Explanation:
+ * Previously, there was only one course. So, this query
+ * looked at all system users who were students.
+ * Now, there are mutliple courses. So, we can't look
+ * at all users anymore. We need to look at course
+ * enrollments to see all students who have completed
+ * a course and also students who have not.
+ *
+ * For now, the "Orientation" course has been
+ * hardcoded to avoid seeing enrollments in other courses.
+ * The problem with seeing other courses (right now)
+ * is that the other "Refresher" courses do not have
+ * grades associated with them, and therefore do not
+ * appear in the mdl_lesson_grades table and therefore
+ * will muddy-up the results of this report. This query
+ * will need to change if we want to include other
+ * reports that don't have grades.
+**/
 function fetch_exam_results($dbcon, $org, $from, $to)
 {
 
