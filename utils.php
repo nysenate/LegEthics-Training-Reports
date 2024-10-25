@@ -84,7 +84,7 @@ function fetch_exam_results($dbcon, $org, $from, $to)
        AND crs.id = 6
        AND uf.organization = ? 
        AND ((g.completed > ? AND g.completed < ?) OR g.completed IS NULL)
-  ORDER BY u.confirmed DESC, g.completed DESC");
+  ORDER BY u.confirmed DESC, g.completed DESC, u.lastname ASC, u.firstname ASC");
 
   $sth->execute(array($org, $from, $to));
   $res = $sth->fetchAll(PDO::FETCH_ASSOC);
