@@ -1,10 +1,10 @@
 <?php
 //
 // Cron job to build weekly usage report for email delivery
-//   0 16 * * 5 php /data/moodle/www/report/nys/cron.php
+//   0 16 * * 5 php /data/moodle/www/report/nys/nyss_report_cron.php
 // For quarterly reports:
-//   0 0 30 6,9 * php /data/moodle/www/report/nys/cron.php --quarterly
-//   0 0 31 3,12 * php /data/moodle/www/report/nys/cron.php --quarterly
+//   0 0 30 6,9 * php /data/moodle/www/report/nys/nyss_report_cron.php --quarterly
+//   0 0 31 3,12 * php /data/moodle/www/report/nys/nyss_report_cron.php --quarterly
 //
 // Subscriptions are managed in: legethics.ini
 //
@@ -92,8 +92,8 @@ foreach ($active_orgs as $org) {
   echo "Generating $org $report_t Report covering the past $duration days\n";
 
   // date range the organization wants to see
-  $start_time = date('U', strtotime('-'.$duration.' days'));
-  $end_time = date('U');
+  $start_time = 1719000000;
+  $end_time = 1719604800;
 
   // get matching records from database
   $result = fetch_exam_results($dbcon, $org, $start_time, $end_time);
