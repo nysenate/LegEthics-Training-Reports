@@ -13,7 +13,7 @@ require_once 'utils.php';
 
 echo "Starting Moodle report generation at ".date('Ymd-His')."\n";
 
-$cfg = get_config('legethics.ini');
+$cfg = get_local_config('legethics.ini');
 if ($cfg === null) {
   echo "ERROR: Unable to load config file\n";
   exit(1);

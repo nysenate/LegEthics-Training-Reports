@@ -1,6 +1,6 @@
 <?php
 
-function get_config($ini_file = 'legethics.ini')
+function get_local_config($ini_file = 'legethics.ini')
 {
   static $cfg = null;
 
@@ -11,7 +11,7 @@ function get_config($ini_file = 'legethics.ini')
     }
   }
   return $cfg;
-} // get_config()
+} // get_local_config()
 
 
 function get_db_connection($dbcfg)

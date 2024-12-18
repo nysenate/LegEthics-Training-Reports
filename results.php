@@ -32,7 +32,7 @@ else {
   $error = true;
 }
 
-$cfg = get_config('legethics.ini');
+$cfg = get_local_config('legethics.ini');
 $report_dir = $cfg['general']['report.dir'];
 
 $dbcon = get_db_connection($cfg['database']);

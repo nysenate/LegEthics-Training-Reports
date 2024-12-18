@@ -8,7 +8,7 @@ if (!isset($_GET['file'])) {
 // Replace all directory separators with underscore.  Paths are not allowed.
 $filename = str_replace(DIRECTORY_SEPARATOR, '_', $_GET['file']);
 
-$cfg = get_config('legethics.ini');
+$cfg = get_local_config('legethics.ini');
 $report_dir = $cfg['general']['report.dir'];
 $full_path = $report_dir.'/'.$filename;
 
