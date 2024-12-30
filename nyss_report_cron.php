@@ -92,8 +92,8 @@ foreach ($active_orgs as $org) {
   echo "Generating $org $report_t Report covering the past $duration days\n";
 
   // date range the organization wants to see
-  $start_time = 1719000000;
-  $end_time = 1719604800;
+  $start_time = date('U', strtotime('-'.$duration.' days'));
+  $end_time = date('U');
 
   // get matching records from database
   $result = fetch_exam_results($dbcon, $org, $start_time, $end_time);
